@@ -94,7 +94,7 @@ async def private_receive_handler(c: Client, m: Message):
 
     try:  # This is the outer try block
         log_msg = await m.copy(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}watch/{str(log_msg.id)}/?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}watch/{str(log_msg.id)}?hash={get_hash(log_msg)}"
         online_link = f"{Var.URL}{str(log_msg.id)}?hash={get_hash(log_msg)}"
         try:  # This is the inner try block
             if Var.SHORTLINK:
