@@ -59,12 +59,13 @@ async def start(b, m):
                 
             )
              return
-        except Exception:
+        except Exception as e:
+            print(f"Error in start command: {e}")  # Print the error
             await b.send_message(
                 chat_id=m.chat.id,
                 text="<b>ꜱᴏᴍᴇᴛʜɪɴɢ  ᴡᴇɴᴛ  ᴡʀᴏɴɢ  <a href='https://telegram.me/TechifySupport'>ᴄʟɪᴄᴋ  ʜᴇʀᴇ  ꜰᴏʀ  ꜱᴜᴘᴘᴏʀᴛ</a></b>",
-                
-                disable_web_page_preview=True)
+                disable_web_page_preview=True
+            )
             return
     await StreamBot.send_photo(
     chat_id=m.chat.id,
@@ -81,7 +82,7 @@ async def start(b, m):
                     ]
                 ]
             )
-)
+    )
 
 @StreamBot.on_message(filters.command("help") & filters.private )
 async def help_cd(b, m):
