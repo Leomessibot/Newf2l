@@ -19,12 +19,15 @@ from biisal.vars import Var
 routes = web.RouteTableDef()
 
 
-import jinja2 
+from jinja2 import Environment, FileSystemLoader
 
+# Load templates from the correct directory
+env = Environment(loader=FileSystemLoader("biisal/template"))
 
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    template = "biisal/template/status.html"
+    # Load the status.html template
+    template = env.get_template("status.html")
 
     # Render the template with real values
     html_content = template.render(
@@ -41,7 +44,6 @@ async def root_route_handler(_):
     )
 
     return web.Response(text=html_content, content_type="text/html")
-
 
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
