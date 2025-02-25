@@ -1,8 +1,4 @@
-# Taken from megadlbot_oss <https://github.com/eyaadh/megadlbot_oss/blob/master/mega/webserver/routes.py>
-# Thanks to Eyaadh <https://github.com/eyaadh>
-# Thanks to adarsh-goel
-# (c) @biisal
-# (c) TechifyBots
+
 import re
 import time
 import math
@@ -23,7 +19,7 @@ from biisal.vars import Var
 routes = web.RouteTableDef()
 
 
-from jinja2 
+import jinja2 
 
 
 @routes.get("/", allow_head=True)
