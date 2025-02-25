@@ -25,12 +25,10 @@ routes = web.RouteTableDef()
 
 from jinja2 
 
-# Load templates from "templates" directory
-env = Environment(loader=FileSystemLoader("templates"))
 
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    template = biisal/template/status.html
+    template = "biisal/template/status.html"
 
     # Render the template with real values
     html_content = template.render(
