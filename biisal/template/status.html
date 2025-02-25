@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            font-size: 16px;
+            background: #e0e0e0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Server Status</h1>
+        <p><strong>Server Status:</strong> Running</p>
+        <p><strong>Uptime:</strong> {{ uptime }}</p>
+        <p><strong>Telegram Bot:</strong> <a href="https://t.me/{{ bot_username }}">@{{ bot_username }}</a></p>
+        <p><strong>Connected Bots:</strong> {{ connected_bots }}</p>
+        <h2>Work Loads</h2>
+        <ul>
+            {% for bot, load in loads.items() %}
+                <li>{{ bot }}: {{ load }}</li>
+            {% endfor %}
+        </ul>
+        <p><strong>Version:</strong> {{ version }}</p>
+    </div>
+</body>
+</html>
