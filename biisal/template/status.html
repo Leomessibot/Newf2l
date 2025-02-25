@@ -9,16 +9,17 @@
             font-family: Arial, sans-serif;
             margin: 40px;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: #121212; /* Dark background */
+            color: #f0f0f0; /* Light text color */
         }
         .container {
-            background: white;
+            background: #1c1c1c; /* Darker container */
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         }
         h1 {
-            color: #333;
+            color: #ff4757; /* Red color for headings */
         }
         p {
             font-size: 18px;
@@ -29,14 +30,35 @@
         }
         li {
             font-size: 16px;
-            background: #e0e0e0;
+            background: #ff4757; /* Red background for list items */
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
         }
+        a {
+            color: #ff4757; /* Red color for links */
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+        .name {
+            font-size: 12px; /* Small font size */
+            color: white; /* White color */
+            position: absolute; /* Positioning */
+            top: 20px; /* Distance from the top */
+            left: 20px; /* Distance from the left */
+        }
+        .copyright {
+            text-align: center; /* Center the copyright */
+            margin-top: 20px; /* Space above copyright */
+            font-size: 14px; /* Font size for copyright */
+            color: white; /* White color for copyright */
+        }
     </style>
 </head>
 <body>
+    <div class="name">MadxMvz</div> <!-- Added name here -->
     <div class="container">
         <h1>Server Status</h1>
         <p><strong>Server Status:</strong> Running</p>
@@ -51,5 +73,8 @@
         </ul>
         <p><strong>Version:</strong> {{ version }}</p>
     </div>
+    <div class="copyright">
+        &copy; 2025 MadxBotz
+    </div> <!-- Added copyright here -->
 </body>
 </html>
