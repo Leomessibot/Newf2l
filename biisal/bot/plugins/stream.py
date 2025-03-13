@@ -3,6 +3,7 @@ import asyncio
 import requests
 import string
 import random
+from pyrogram import enums 
 from asyncio import TimeoutError
 from biisal.bot import StreamBot
 from biisal.utils.database import Database
