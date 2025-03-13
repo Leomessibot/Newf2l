@@ -11,7 +11,8 @@ from biisal.utils.human_readable import humanbytes
 from biisal.vars import Var
 from urllib.parse import quote_plus
 from pyrogram import filters, Client
-from pyrogram.errors import FloodWait, UserNotParticipant, ChatMemberStatus
+from pyrogram.errors import FloodWait, UserNotParticipant
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from biisal.utils.file_properties import get_name, get_hash, get_media_file_size
