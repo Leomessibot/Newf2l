@@ -165,12 +165,12 @@ async def add_channel_callback(client, callback_query):
             bot_member = await client.get_chat_member(channel_id, "me")
             print(f"Bot Admin Status in {channel_id}: {bot_member.status}")  # Debug log
 
-        if bot_member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-           await response.reply_text(
-               f"❌ I am **not an admin** in this channel.\n"
-               "Please **add me as an admin** and try again."
-           )
-           return 
+            if bot_member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+               await response.reply_text(
+                   f"❌ I am **not an admin** in this channel.\n"
+                   "Please **add me as an admin** and try again."
+               )
+               return 
 
         except Exception as e:
             await response.reply_text(f"❌ Error checking admin status: {str(e)}")
