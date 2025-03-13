@@ -137,8 +137,65 @@ async def private_receive_handler(c: Client, m: Message):
         await asyncio.sleep(e.x)
         await c.send_message(chat_id=Var.BIN_CHANNEL, text=f"Gᴏᴛ FʟᴏᴏᴅWᴀɪᴛ ᴏғ {str(e.x)}s from [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n\n**𝚄𝚜𝚎𝚛 𝙸𝙳 :** `{str(m.from_user.id)}`", disable_web_page_preview=True)
 
+@StreamBot.on_callback_query(filters.regex("view_channels"))
+async def view_channels_callback(client, callback_query: CallbackQuery):
+    channels = await db.get_all_channels()
+    
+    if channels:
+        buttons = [
+            [InlineKeyboardButton(channel['title'], callback_data=f"channel_settings_{channel['channel_id']}")]
+            for channel in channels
+        ]
+    else:
+        buttons = [[InlineKeyboardButton("No channels added yet.", callback_data="none")]]
+    
+    buttons.append([InlineKeyboardButton("➕ Add New Channel", callback_data="add_channel")])
+
+    await callback_query.message.edit_text(
+        "📋 **Your Added Channels:**\n\nClick a channel to view settings.",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+# --- Channel Settings ---
+@StreamBot.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
+async def channel_settings_callback(client, callback_query: CallbackQuery):
+    channel_id = int(callback_query.data.split("_")[2])
+    channel = await db.get_channel(channel_id)
+
+    if not channel:
+        await callback_query.message.edit_text("❌ Channel not found!")
+        return
+
+    settings_buttons = [
+        [InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
+        [InlineKeyboardButton("🔙 Back", callback_data="view_channels")]
+    ]
+
+    await callback_query.message.edit_text(
+        f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
+        reply_markup=InlineKeyboardMarkup(settings_buttons)
+    )
+
+# --- Remove Channel ---
+@StreamBot.on_callback_query(filters.regex(r"remove_channel_(\d+)"))
+async def remove_channel_callback(client, callback_query: CallbackQuery):
+    channel_id = int(callback_query.data.split("_")[2])
+    await db.remove_channel(channel_id)
+
+    await callback_query.message.edit_text(
+        f"✅ Channel removed successfully!",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+    )
+
+# --- Add New Channel ---
 @StreamBot.on_callback_query(filters.regex("add_channel"))
-async def add_channel_callback(client, callback_query):
+async def add_channel_callback(client, callback_query: CallbackQuery):
+    current_channel_count = await db.count_channels()
+    
+    if current_channel_count >= 5:
+        await callback_query.answer("❌ You can only add up to 5 channels.", show_alert=True)
+        return
+
     msg = await callback_query.message.edit_text(
         "<b>📢 Forward a message from your channel within 60 seconds.</b>\n"
         "<b>This will allow me to generate links in that channel.</b>\n\n"
@@ -147,7 +204,7 @@ async def add_channel_callback(client, callback_query):
     )
 
     try:
-        response = await client.listen(callback_query.from_user.id, timeout=1000)
+        response = await client.listen(callback_query.from_user.id, timeout=60)
 
         if response.text == "/cancel":
             await msg.delete()
@@ -155,33 +212,32 @@ async def add_channel_callback(client, callback_query):
             return
 
         if not response.forward_from_chat:
-            await response.reply_text("❌ This is not a forwarded message from a channel. Please try again.")
+            await response.reply_text("❌ This is not a forwarded message from a channel. Try again.")
             return
 
         channel_id = response.forward_from_chat.id
         channel_title = response.forward_from_chat.title
 
-        # Check if the bot is an admin
         try:
             bot_member = await client.get_chat_member(channel_id, "me")
-            print(f"Bot Admin Status in {channel_id}: {bot_member.status}")  # Debug log
 
             if bot_member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-               await response.reply_text(
-                   f"❌ I am **not an admin** in this channel.\n"
-                   "Please **add me as an admin** and try again."
-               )
-               return 
-
+                await response.reply_text(
+                    f"❌ I am **not an admin** in **{channel_title}**.\n"
+                    "Please **add me as an admin** and try again."
+                )
+                return
         except Exception as e:
             await response.reply_text(f"❌ Error checking admin status: {str(e)}")
             return
-        # Save the channel if the bot is an admin
+
         if await db.get_channel(channel_id):
             await response.reply_text(f"✅ **{channel_title}** is already added!")
         else:
-            await db.add_channel(channel_id)
-            await response.reply_text(f"✅ **{channel_title}** has been added for link generation!")
+            await db.add_channel(channel_id, channel_title)
+            await response.reply_text(f"✅ **{channel_title}** has been added!")
+
+        await view_channels_callback(client, callback_query)  # Refresh channel list
 
     except asyncio.TimeoutError:
         await msg.edit_text("⏳ **Time expired!** Please click 'Add New Channel' again.")
