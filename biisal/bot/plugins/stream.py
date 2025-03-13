@@ -163,22 +163,13 @@ async def add_channel_callback(client, callback_query):
         # Check if the bot is an admin
         try:
             bot_member = await client.get_chat_member(channel_id, "me")
-            admin_statuses = ["administrator", "creator"]
+            print(f"Bot Admin Status in {channel_id}: {bot_member.status}")  # Debug log
 
-            if bot_member.status not in admin_statuses:
-                await response.reply_text(
-                    f"❌ I am **not an admin** in {channel_title}.\n"
-                    "Please **add me as an admin** and try again."
-                )
-                return
-
-            # Check specific admin permissions (optional)
-            if bot_member.privileges and not bot_member.privileges.can_post_messages:
-                await response.reply_text(
-                    f"❌ I am missing necessary admin permissions in {channel_title}.\n"
-                    "Please enable 'Post Messages' and try again."
-                )
-                return
+        if bot_member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+           await response.reply_text(
+               f"❌ I am **not an admin** in this channel.\n"
+               "Please **add me as an admin** and try again."
+           )
 
         except Exception as e:
             await response.reply_text(f"❌ Error checking admin status: {str(e)}")
