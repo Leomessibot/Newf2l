@@ -81,3 +81,7 @@ class Database:
     async def remove_channel(self, channel_id):
         # Removes a channel from the database
         await self.channels.delete_one({'channel_id': channel_id})
+
+    async def count_channels(self):
+        return await self.channels.count_documents({})
+
