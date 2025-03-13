@@ -159,7 +159,7 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
 # --- Channel Settings ---
 @StreamBot.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
 async def channel_settings_callback(client, callback_query: CallbackQuery):
-    channel_id = int(callback_query.data.split("_")[2])
+    channel_id = int(callback_query.data.split("_")[-1])
     channel = await db.get_channel(channel_id)
 
     if not channel:
@@ -179,7 +179,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
 # --- Remove Channel ---
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
-    channel_id = int(callback_query.data.split("_")[2])
+    channel_id = int(callback_query.data.split("_")[-1])
     await db.remove_channel(channel_id)
 
     await callback_query.message.edit_text(
