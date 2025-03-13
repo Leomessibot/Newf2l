@@ -145,7 +145,7 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
     
     if channels:
         buttons = [
-            [InlineKeyboardButton(channel['title'], callback_data=f"channel_settings_{channel['channel_id']}")]
+            [InlineKeyboardButton(channel['title'], callback_data=f"channel_settings|{channel['channel_id']}]")]
             for channel in channels
         ]
     else:
@@ -220,7 +220,7 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
 @StreamBot.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
 async def channel_settings_callback(client, callback_query: CallbackQuery):
     # Extract channel_id from callback_data
-    channel_id = int(callback_query.data.split("_")[-1])
+    channel_id = int(callback_query.data.split("|")[1].split("]")[0])
     channel = await db.get_channel(channel_id)
 
     if not channel:
