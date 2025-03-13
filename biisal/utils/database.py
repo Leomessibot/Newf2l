@@ -66,18 +66,18 @@ class Database:
             print(f"Failed to unban. Reason: {e}")
             return e
 
-    # Add a new channel for link generation
-    async def add_channel(self, channel_id):
-        channel = await self.channels.find_one({"channel_id": int(channel_id)})
-        if channel:
-            return False  # Channel already added
-        await self.channels.insert_one({"channel_id": int(channel_id)})
-        return True  # Channel successfully added
-
-    # Check if a channel is already approved
     async def get_channel(self, channel_id):
-        return await self.channels.find_one({"channel_id": int(channel_id)})
+        # Returns the channel from the database if it exists
+        return await self.channels.find_one({'channel_id': channel_id})
 
-    # Remove a channel (if needed)
+    async def add_channel(self, channel_id, title):
+        # Adds the new channel to the database
+        await self.channels.insert_one({'channel_id': channel_id, 'title': title, 'added_at': datetime.datetime.now()})
+
+    async def get_all_channels(self):
+        # Retrieves all added channels from the database
+        return await self.channels.find().to_list(length=None)
+
     async def remove_channel(self, channel_id):
-        await self.channels.delete_one({"channel_id": int(channel_id)})
+        # Removes a channel from the database
+        await self.channels.delete_one({'channel_id': channel_id})
