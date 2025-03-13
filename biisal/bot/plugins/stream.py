@@ -160,7 +160,7 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
 @StreamBot.on_callback_query(filters.regex(r"channel_settings\|(\d+)"))
 async def channel_settings_callback(client, callback_query: CallbackQuery):
     # Extract the channel_id from the callback data
-    channel_id = callback_query.data.split("|")[1]
+    channel_id = callback_query.data.split("|")[-1]
     
     # Call function to show channel settings
     await show_channel_settings(client, callback_query, channel_id)
