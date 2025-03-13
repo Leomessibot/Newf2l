@@ -1,6 +1,3 @@
-#(c) Adarsh-Goel
-#(c) @biisal
-#(c) TechifyBots
 import os
 import asyncio
 import requests
