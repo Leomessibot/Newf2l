@@ -78,7 +78,7 @@ async def start(b, m):
                         InlineKeyboardButton("• ʜᴇʟᴘ •", callback_data="help")
                     ],
                     [
-                        InlineKeyboardButton("♻ ᴀᴅᴅ ᴄʜᴀɴɴᴇʟ ♻", callback_data="add_channel")
+                        InlineKeyboardButton("♻ ᴀᴅᴅ ᴄʜᴀɴɴᴇʟ ♻", callback_data="view_channels")
                     ]
                 ]
             )
