@@ -157,13 +157,9 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
     )
 
 # --- Channel Settings ---
-@Client.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
-async def newchannel_settings(client, callback_query):
-    channel_id = int(callback_query.data.split("_")[-1])
-    await channel_settings_callback(client, callback_query.message, channel_id)  # Call the function to show bot settings
-    
-
+@StreamBot.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
 async def channel_settings_callback(client, callback_query: CallbackQuery):
+    channel_id = int(callback_query.data.split("_")[2])
     channel = await db.get_channel(channel_id)
 
     if not channel:
@@ -179,11 +175,11 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
         f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
         reply_markup=InlineKeyboardMarkup(settings_buttons)
     )
-
+    
 # --- Remove Channel ---
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
-    channel_id = int(callback_query.data.split("_")[-1])
+    channel_id = int(callback_query.data.split("_")[2])
     await db.remove_channel(channel_id)
 
     await callback_query.message.edit_text(
