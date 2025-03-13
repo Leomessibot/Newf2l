@@ -143,7 +143,7 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
     
     if channels:
         buttons = [
-            [InlineKeyboardButton(channel['title'], callback_data=f"channel_settings_{channel['channel_id']}")]
+            [InlineKeyboardButton(channel['title'], callback_data=f"channel_settings|{channel['channel_id']}")]
             for channel in channels
         ]
     else:
@@ -157,21 +157,25 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
     )
 
 # --- Channel Settings ---
-@Client.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
-async def bot_settings(client, callback_query):
-    channel_id = int(callback_query.data.split("_")[-2])
-    await channel_settings_callback(client, callback_query.message, channel_id)  # Call the function to show bot settings
+@StreamBot.on_callback_query(filters.regex(r"channel_settings\|(\d+)"))
+async def channel_settings_callback(client, callback_query: CallbackQuery):
+    # Extract the channel_id from the callback data
+    channel_id = callback_query.data.split("|")[1]
+    
+    # Call function to show channel settings
+    await show_channel_settings(client, callback_query, channel_id)
 
-
-async def channel_settings_callback(client, callback_query: CallbackQuery, channel_id):
+async def show_channel_settings(client, callback_query: CallbackQuery, channel_id: str):
+    # Fetch channel details from the database using the extracted channel_id
     channel = await db.get_channel(channel_id)
 
     if not channel:
         await callback_query.message.edit_text("❌ Channel not found!")
         return
 
+    # Settings options for the selected channel
     settings_buttons = [
-        [InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
+        [InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel|{channel_id}")],
         [InlineKeyboardButton("🔙 Back", callback_data="view_channels")]
     ]
 
@@ -179,6 +183,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery, chann
         f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
         reply_markup=InlineKeyboardMarkup(settings_buttons)
     )
+
     
 # --- Remove Channel ---
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\d+)"))
