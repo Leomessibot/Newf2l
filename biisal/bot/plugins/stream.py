@@ -142,48 +142,50 @@ async def private_receive_handler(c: Client, m: Message):
 async def view_channels_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id  # Get the user ID
 
-    # Fetch the first 5 channels for the user
-    channels = await db.channels.find({'user_id': user_id}).to_list(5)
-
-    if channels:
-        # Create buttons for the channels (up to 5)
-        buttons = [
-            [InlineKeyboardButton(channel['title'], callback_data="channel_settings")]
-            for channel in channels
-        ]
-    else:
-        # No channel added yet
-        buttons = [[InlineKeyboardButton("No channel added yet.", callback_data="none")]]
-
-    buttons.append([InlineKeyboardButton("➕ Add New Channel", callback_data="add_channel")])
-
-    await callback_query.message.edit_text(
-        "📋 **Your Channels**:\n\nClick a channel to view settings.",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
-
-
-# --- Channel Settings ---
-@StreamBot.on_callback_query(filters.regex("channel_settings"))
-async def channel_settings_callback(client, callback_query: CallbackQuery):
-    user_id = callback_query.from_user.id  # Get user ID
-
-    # Fetch the first channel for the user
+    # Fetch the user's channel from the database (one channel per user)
     channel = await db.channels.find_one({'user_id': user_id})
 
-    if not channel:
-        await callback_query.message.edit_text("❌ Channel not found!")
-        return
+    if channel:
+        # If a channel is added, show the button with the channel's title
+        buttons = [
+            [InlineKeyboardButton(f"📱 {channel['title']}", callback_data="channel_settings")]
+        ]
+        await callback_query.message.edit_text(
+            "📋 **Your Channel**:\n\nClick the button below to view settings.",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+    else:
+        # If no channel is added, prompt the user to add one
+        buttons = [
+            [InlineKeyboardButton("No channel added yet.", callback_data="none")],
+            [InlineKeyboardButton("➕ Add New Channel", callback_data="add_channel")]
+        ]
+        
+        await callback_query.message.edit_text(
+            "📋 **Your Channels**:\n\nYou haven't added any channel yet. Please add a channel.",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
 
-    settings_buttons = [
-        [InlineKeyboardButton("❌ Remove Channel", callback_data="remove_channel")],
-        [InlineKeyboardButton("🔙 Back", callback_data="view_channels")]
-    ]
+@StreamBot.on_callback_query(filters.regex("channel_settings"))
+async def channel_settings_callback(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id  # Get the user ID
 
-    await callback_query.message.edit_text(
-        f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
-        reply_markup=InlineKeyboardMarkup(settings_buttons)
-    )
+    # Fetch the user's channel from the database (one channel per user)
+    channel = await db.channels.find_one({'user_id': user_id})
+
+    if channel:
+        # If the channel is found, show its settings
+        settings_buttons = [
+            [InlineKeyboardButton("❌ Remove Channel", callback_data="remove_channel")],
+            [InlineKeyboardButton("🔙 Back to Channels", callback_data="view_channels")]
+        ]
+
+        await callback_query.message.edit_text(
+            f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
+            reply_markup=InlineKeyboardMarkup(settings_buttons)
+        )
+    else:
+        await callback_query.message.edit_text("❌ No channel found!")
 
 
 # --- Remove Channel ---
@@ -208,12 +210,6 @@ async def remove_channel_callback(client, callback_query: CallbackQuery):
 async def add_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id  # Get user ID
     
-    # Fetch the number of channels the user already has (limit to 5 channels)
-    current_channel_count = await db.channels.count_documents({'user_id': user_id})
-
-    if current_channel_count >= 5:
-        await callback_query.answer("❌ You can only add up to 5 channels.", show_alert=True)
-        return
 
     msg = await callback_query.message.edit_text(
         "<b>📢 Forward a message from your channel within 60 seconds.</b>\n"
