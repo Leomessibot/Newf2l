@@ -159,7 +159,7 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
 # --- Channel Settings ---
 @Client.on_callback_query(filters.regex(r"channel_settings_(\d+)"))
 async def bot_settings(client, callback_query):
-    channel_id = int(callback_query.data.split("_")[3])
+    channel_id = int(callback_query.data.split("_")[-2])
     await channel_settings_callback(client, callback_query.message, channel_id)  # Call the function to show bot settings
 
 
