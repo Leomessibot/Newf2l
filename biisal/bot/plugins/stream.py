@@ -173,7 +173,7 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
         "<b>📢 Forward a message from your channel within 60 seconds.</b>\n"
         "<b>This will allow me to generate links in that channel.</b>\n\n"
         "🚫 Type /cancel to stop.",
-        parse_mode="HTML"
+        parse_mode=enums.ParseMode.HTML
     )
 
     try:
