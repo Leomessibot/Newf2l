@@ -46,7 +46,7 @@ msg_text ="""
 
 <b>⚠️ ᴛʜɪꜱ ʟɪɴᴋ ᴡɪʟʟ ᴇxᴘɪʀᴇ ᴀꜰᴛᴇʀ 𝟼 ʜᴏᴜʀꜱ</b>
 
-<b>❇️ ʙʏ : @TechifyBots</b>"""
+<b>❇️ ʙʏ : @NxBots_TG</b>"""
 
 @StreamBot.on_message((filters.private) & (filters.document | filters.video | filters.audio | filters.photo) , group=4)
 async def private_receive_handler(c: Client, m: Message):
