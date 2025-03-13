@@ -69,8 +69,8 @@ class Database:
             print(e)
             return e
 
-     async def add_channel(self, channel_id):
+     async def add_channel(self , channel_id):
         return await self.db.add("approved_channels", {"channel_id": channel_id})
 
-    async def get_channel(self, channel_id):
+    async def get_channel(self , channel_id):
         return await self.db.find_one("approved_channels", {"channel_id": channel_id})
