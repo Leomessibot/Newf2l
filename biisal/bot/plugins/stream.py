@@ -170,6 +170,7 @@ async def add_channel_callback(client, callback_query):
                f"❌ I am **not an admin** in this channel.\n"
                "Please **add me as an admin** and try again."
            )
+           return 
 
         except Exception as e:
             await response.reply_text(f"❌ Error checking admin status: {str(e)}")
