@@ -17,7 +17,7 @@ class Var(object):
     MULTI_CLIENT = False
     API_ID = int(getenv('API_ID', '26305156'))
     API_HASH = str(getenv('API_HASH', '9937930c368c669ca905e9a95aa712f0'))
-    BOT_TOKEN = str(getenv('BOT_TOKEN' , '6465961232:AAGlS_LGkM-npZFUMH2jVHJhw6KtY2HCbdM'))
+    BOT_TOKEN = str(getenv('BOT_TOKEN' , '7263603966:AAENeCgL_Su2o-cWENOraZRKGxKONkgKbb0'))
     PICS = (environ.get('PICS', 'https://envs.sh/jUp.jpg')).split()
     name = str(getenv('name', 'linkstreamrobot'))
     SLEEP_THRESHOLD = int(getenv('SLEEP_THRESHOLD', '60'))
