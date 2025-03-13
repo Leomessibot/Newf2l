@@ -135,8 +135,57 @@ async def private_receive_handler(c: Client, m: Message):
         await asyncio.sleep(e.x)
         await c.send_message(chat_id=Var.BIN_CHANNEL, text=f"Gᴏᴛ FʟᴏᴏᴅWᴀɪᴛ ᴏғ {str(e.x)}s from [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n\n**𝚄𝚜𝚎𝚛 𝙸𝙳 :** `{str(m.from_user.id)}`", disable_web_page_preview=True)
 
+@StreamBot.on_callback_query(filters.regex("add_channel"))
+async def add_channel_callback(client, callback_query):
+    msg = await callback_query.message.edit_text(
+        "<b>📢 Forward a message from your channel within 60 seconds.</b>\n"
+        "<b>This will allow me to generate links in that channel.</b>\n\n"
+        "🚫 Type /cancel to stop.",
+        parse_mode=enums.ParseMode.HTML
+    )
+
+    try:
+        response = await client.listen(callback_query.from_user.id, timeout=1000)
+
+        if response.text == "/cancel":
+            await msg.delete()
+            await response.reply_text("🚫 Process cancelled.")
+            return
+
+        if not response.forward_from_chat:
+            await response.reply_text("❌ This is not a forwarded message from a channel. Please try again.")
+            return
+
+        channel_id = response.forward_from_chat.id
+        channel_title = response.forward_from_chat.title
+
+        try:
+            bot_member = await client.get_chat_member(channel_id, "me")
+            if bot_member.status not in ["administrator", "creator"]:
+                await response.reply_text(
+                    f"❌ I am not an admin in {channel_title}.\n"
+                    "Please add me as an admin and try again."
+                )
+                return
+        except Exception as e:
+            await response.reply_text(f"❌ Error checking admin status: {str(e)}")
+            return
+
+        # Save the channel if the bot is an admin
+        if await db.get_channel(channel_id):
+            await response.reply_text(f"✅ **{channel_title}** is already added!")
+        else:
+            await db.add_channel(channel_id)
+            await response.reply_text(f"✅ **{channel_title}** has been added for link generation!")
+
+    except asyncio.TimeoutError:
+        await msg.edit_text("⏳ **Time expired!** Please click 'Add New Channel' again.")
+
 @StreamBot.on_message(filters.channel & ~filters.group & (filters.document | filters.video | filters.photo)  & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot, broadcast):
+    if not await db.get_channel(broadcast.chat.id):
+        return
+        
     if int(broadcast.chat.id) in Var.BAN_CHNL:
         print("chat trying to get straming link is found in BAN_CHNL,so im not going to give stram link")
         return
