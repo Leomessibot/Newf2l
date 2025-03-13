@@ -183,7 +183,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery, chann
 # --- Remove Channel ---
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
-    channel_id = int(callback_query.data.split("_")[2])
+    channel_id = int(callback_query.data.split("_")[-2])
     await db.remove_channel(channel_id)
 
     await callback_query.message.edit_text(
