@@ -335,6 +335,7 @@ async def channel_receive_handler(bot, broadcast):
         return
 
     try:
+        # Forward message to BIN_CHANNEL for logging
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
         stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         download_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
@@ -353,7 +354,7 @@ async def channel_receive_handler(bot, broadcast):
         # Extract file details
         file_name = broadcast.document.file_name if broadcast.document else "Unknown File"
         file_size = f"{broadcast.document.file_size / 1024 / 1024:.2f} MB" if broadcast.document else "Unknown Size"
-        previous_caption = broadcast.caption if broadcast.caption else "No caption"
+        previous_caption = broadcast.caption if broadcast.caption else file_name
 
         # Format caption with actual values
         formatted_caption = custom_caption.format(
@@ -364,11 +365,11 @@ async def channel_receive_handler(bot, broadcast):
             download_link=download_link
         )
 
-        await log_msg.reply_text(text=formatted_caption, quote=True)
-
-        await bot.edit_message_reply_markup(
+        # **Edit the message in the channel to include the caption & buttons**
+        await bot.edit_message_caption(
             chat_id=broadcast.chat.id,
             message_id=broadcast.id,
+            caption=formatted_caption,
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("🎬 Watch", url=stream_link),
                  InlineKeyboardButton("⬇️ Download", url=download_link)]
