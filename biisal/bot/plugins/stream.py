@@ -141,13 +141,12 @@ async def private_receive_handler(c: Client, m: Message):
 # --- View Channels ---
 @StreamBot.on_callback_query(filters.regex("view_channels"))
 async def view_channels_callback(client, callback_query: CallbackQuery):
-    user_id = callback_query.from_user.id  # Get user ID
+    user_id = callback_query.from_user.id
 
-    # Fetch up to 5 channels
     channels = await db.channels.find({'user_id': user_id}).to_list(length=5)
 
     if channels:
-        # Create buttons with channel ID in callback data
+        
         buttons = [
             [InlineKeyboardButton(f"📱 {channel['title']}", callback_data=f"channel_settings_{channel['channel_id']}")]
             for channel in channels
@@ -171,13 +170,13 @@ async def view_channels_callback(client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
-# --- Channel Settings (Unique for Each Channel) ---
+
 @StreamBot.on_callback_query(filters.regex(r"channel_settings_(\-?\d+)"))
 async def channel_settings_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])  # Extract channel ID
 
-    # Fetch the selected channel from the database
+    
     channel = await db.channels.find_one({'user_id': user_id, 'channel_id': channel_id})
 
     if not channel:
@@ -190,7 +189,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
     ]
 
     await callback_query.message.edit_text(
-        f"🔧 **Settings for {channel['title']}**:\n\nChoose an option:",
+        f"<b>🔧 Settings for {channel['title']}:\n\nChoose an option:</b>",
         reply_markup=InlineKeyboardMarkup(settings_buttons)
     )
 
@@ -198,9 +197,9 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    channel_id = int(callback_query.data.split("_")[-1])  # Extract channel ID
+    channel_id = int(callback_query.data.split("_")[-1])  
 
-    # Remove from the database
+    
     result = await db.channels.delete_one({'user_id': user_id, 'channel_id': channel_id})
 
     if result.deleted_count > 0:
@@ -216,7 +215,7 @@ async def remove_channel_callback(client, callback_query: CallbackQuery):
 async def add_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id  # Get user ID
     
-    # Check how many channels the user has
+    
     channel_count = await db.channels.count_documents({'user_id': user_id})
     
     if channel_count >= 5:
@@ -231,11 +230,14 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
     )
 
     try:
-        response = await client.listen(callback_query.from_user.id, timeout=60)
+        response = await client.listen(callback_query.from_user.id, timeout=1000)
 
         if response.text == "/cancel":
             await msg.delete()
-            await response.reply_text("🚫 Process cancelled.")
+            await response.reply_text(
+                "🚫 Process cancelled.", 
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+            )
             return
 
         if not response.forward_from_chat:
@@ -259,15 +261,18 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
             await response.reply_text(f"❌ Error checking admin status: {str(e)}")
             return
 
-        # Add the channel if user has less than 5
         await db.channels.insert_one({'user_id': user_id, 'title': channel_title, 'channel_id': channel_id})
-        
-        await response.reply_text(f"✅ **{channel_title}** has been added!")
 
-        await view_channels_callback(client, callback_query)  # Refresh channel list
+        await msg.delete()
+        await response.delete()
+
+        await response.reply_text(
+            f"<b>✅ {channel_title}** has been added!</b>",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+        )       
 
     except asyncio.TimeoutError:
-        await msg.edit_text("⏳ **Time expired!** Please click 'Add New Channel' again.")
+        await msg.edit_text("⏳ Time expired! Please click 'Add New Channel' again.")
 
 @StreamBot.on_message(filters.channel & ~filters.group & (filters.document | filters.video | filters.photo)  & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot, broadcast):
