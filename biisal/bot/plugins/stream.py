@@ -361,7 +361,7 @@ async def delete_caption(client, callback_query: CallbackQuery):
     # Remove the caption from the database
     await db.channels.update_one(
         {'user_id': user_id, 'channel_id': channel_id},
-        {"$unset": {"custom_caption": ""}}  # Remove the caption field
+        {"$unset": {"custom_caption": ""}}  
     )
 
     await callback_query.message.edit_text(
@@ -451,7 +451,6 @@ async def onoff_shortener(client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-    # **Show quick confirmation**
     await callback_query.answer(f"Shortener is now {shortener_status}!", show_alert=True)
 
 
