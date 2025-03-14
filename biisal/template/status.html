@@ -1,80 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server Status</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NxBotsTG</title>
+    
+    <link rel="icon" href="https://i.ibb.co/yNq8CXm/multimedia.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="https://i.ibb.co/yNq8CXm/multimedia.png" type="image/x-icon" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/proavipatil/data@main/fs/src/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;700&display=swap" rel="stylesheet" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            padding: 20px;
-            background-color: #121212; /* Dark background */
-            color: #f0f0f0; /* Light text color */
+            font-family: "Josefin Sans", sans-serif;
+            background-color: #0f0f0f;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            backdrop-filter: blur(5px);
+        }
+        nav a {
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            margin: 0 15px;
+        }
+        nav a:hover {
+            color: #ff4757;
         }
         .container {
-            background: #1c1c1c; /* Darker container */
+            padding: 100px 20px;
+        }
+        .status-box {
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            margin: 50px auto;
+            width: 80%;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
         }
         h1 {
-            color: #ff4757; /* Red color for headings */
+            color: #ff4757;
+            font-size: 32px;
+            font-weight: 700;
         }
         p {
             font-size: 18px;
+            line-height: 1.8;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .about-section {
+            padding: 100px 30px;
         }
-        li {
-            font-size: 16px;
-            background: #ff4757; /* Red background for list items */
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-        }
-        a {
-            color: #ff4757; /* Red color for links */
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline; /* Underline on hover */
-        }
-        .name {
-            font-size: 12px; /* Small font size */
-            color: white; /* White color */
-            position: absolute; /* Positioning */
-            top: 20px; /* Distance from the top */
-            left: 20px; /* Distance from the left */
-        }
-        .copyright {
-            text-align: center; /* Center the copyright */
-            margin-top: 20px; /* Space above copyright */
-            font-size: 14px; /* Font size for copyright */
-            color: white; /* White color for copyright */
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
+
 <body>
-    <div class="name">NxBotsTG</div> <!-- Added name here -->
-    <div class="container">
-        <h1>Server Status</h1>
-        <p><strong>Server Status:</strong> Running</p>
-        <p><strong>Uptime:</strong> {{ uptime }}</p>
-        <p><strong>Telegram Bot:</strong> <a href="https://t.me/{{ bot_username }}">@{{ bot_username }}</a></p>
-        <p><strong>Connected Bots:</strong> {{ connected_bots }}</p>
-        <h2>Work Loads</h2>
-        <ul>
-            {% for bot, load in loads.items() %}
-                <li>{{ bot }}: {{ load }}</li>
-            {% endfor %}
-        </ul>
-        <p><strong>Version:</strong> {{ version }}</p>
+    <nav>
+        <div class="nleft">
+            <a href="#"><h3 style="z-index: 100">MadxBotz</h3></a>
+        </div>
+        <div class="nryt">
+            <a href="#home">HOME</a>
+            <a href="#about">ABOUT</a>
+        </div>
+    </nav>
+
+    <div class="container" id="home">
+        <h1>🚀 Server Status</h1>
+        <div class="status-box">
+            <p><strong>Server Status:</strong> Running ✅</p>
+            <p><strong>Uptime:</strong> {{ uptime }}</p>
+            <p><strong>Connected Bots:</strong> {{ connected_bots }}</p>
+            <p><strong>Current Loads:</strong> {{ loads }}</p>
+        </div>
     </div>
-    <div class="copyright">
-        &copy; 2025 NxBotsTG
-    </div> <!-- Added copyright here -->
+
+    <div class="about-section" id="about">
+        <h1>WELCOME TO OUR <span style="color: #ff4757">MadxBotz Streamer</span></h1>
+        <p>
+            This is a Telegram Bot to Stream <span style="color: #ff4757">Movies</span> and 
+            <span style="color: #ff4757">Series</span> directly on Telegram. 
+            You can also <span style="color: #ff4757">download</span> them if you want. 
+            <br /><br />
+            This bot is developed by 
+            <a href="https://telegram.me/ruban9124" style="font-weight: bold; color: #ff4757;">RUBAN</a>. 
+            <br /><br />
+            If you like this bot, then don't forget to share it with your friends and family.
+        </p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 NxBotsTG</p>
+    </footer>
+
 </body>
 </html>
