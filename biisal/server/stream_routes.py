@@ -26,7 +26,7 @@ env = Environment(loader=FileSystemLoader("biisal/template"))
 
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    template = env.get_template("index.html")
+    template = env.get_template("status.html")
     html_content = template.render(
         uptime=get_readable_time(time.time() - StartTime),
         connected_bots=len(multi_clients),
