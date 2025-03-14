@@ -1,4 +1,4 @@
-# (c) @adarsh-goel (c) @biisal (c) TechifyBots
+#LEOTG7 
 
 
 import time
