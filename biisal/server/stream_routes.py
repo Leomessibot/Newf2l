@@ -26,23 +26,12 @@ env = Environment(loader=FileSystemLoader("biisal/template"))
 
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    # Load the status.html template
-    template = env.get_template("status.html")
-
-    # Render the template with real values
+    template = env.get_template("index.html")
     html_content = template.render(
         uptime=get_readable_time(time.time() - StartTime),
-        bot_username=StreamBot.username,
         connected_bots=len(multi_clients),
-        loads=dict(
-            ("bot" + str(c + 1), l)
-            for c, (_, l) in enumerate(
-                sorted(work_loads.items(), key=lambda x: x[1], reverse=True)
-            )
-        ),
-        version=__version__,
+        loads=" | ".join([f"Bot {c + 1} : {l}" for c, (_, l) in enumerate(sorted(work_loads.items(), key=lambda x: x[1], reverse=True))])
     )
-
     return web.Response(text=html_content, content_type="text/html")
 
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
