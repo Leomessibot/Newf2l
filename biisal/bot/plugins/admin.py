@@ -1,6 +1,3 @@
-# (c) @adarsh-goel
-# (c) @biisal
-# (c) TechifyBots
 import os
 import time
 import string
