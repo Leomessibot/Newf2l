@@ -120,8 +120,6 @@ async def private_receive_handler(c: Client, m: Message):
             ])
         )
 
-        await m.delete()  # Delete the original message after processing
-
         # Wait for 6 hours (21600 seconds)
         await asyncio.sleep(21600)  # Sleep for 6 hours
 
