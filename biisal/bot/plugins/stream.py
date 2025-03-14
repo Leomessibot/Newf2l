@@ -459,14 +459,13 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])
 
-    # Ask for shortlink domain
     msg = await callback_query.message.edit_text(
         "<b>🔗 Send me your shortlink site domain (without 'https://')</b>",
         parse_mode=enums.ParseMode.HTML
     )
 
     try:
-        url_response = await client.listen(user_id, timeout=1000)
+        url_response = await client.listen(user_id, timeout=60)
         if url_response.text.lower() == "/cancel":
             await msg.delete()
             return await url_response.reply_text(
@@ -477,14 +476,13 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
         shortlink_url = url_response.text.strip()
         await url_response.delete()
         
-        # Ask for API key
         msg2 = await client.send_message(
             user_id,
             "<b>🔑 Now send your API key</b>",
             parse_mode=enums.ParseMode.HTML
         )
         
-        api_response = await client.listen(user_id, timeout=1000)
+        api_response = await client.listen(user_id, timeout=60)
         if api_response.text.lower() == "/cancel":
             await msg2.delete()
             return await api_response.reply_text(
