@@ -233,7 +233,7 @@ async def set_custom_caption(client, callback_query: CallbackQuery):
     )
 
     try:
-        response = await client.listen(callback_query.from_user.id, timeout=60)
+        response = await client.listen(callback_query.from_user.id, timeout=1000)
 
         if response.text == "/cancel":
             await msg.delete()
@@ -382,7 +382,7 @@ async def set_shortener_callback(client, callback_query: CallbackQuery):
     shortener_status = "✅️ Enabled" if channel.get("shortener_enabled", False) else "❌️ Disabled"
 
     shortener_buttons = [
-        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"onoff_shortener_{channel_id}")],
+        [InlineKeyboardButton(f"🔗 Shortener : {shortener_status}", callback_data=f"onoff_shortener_{channel_id}")],
         [InlineKeyboardButton("🪩 Set Shortener 🪩", callback_data=f"add_shortener_{channel_id}"),
          InlineKeyboardButton("❌ Remove Shortener", callback_data=f"remove_shortener_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Settings", callback_data=f"channel_settings_{channel_id}")]
@@ -440,7 +440,7 @@ async def onoff_shortener(client, callback_query: CallbackQuery):
 
     
     buttons = [
-        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"onoff_shortener_{channel_id}")],
+        [InlineKeyboardButton(f"🔗 Shortener : {shortener_status}", callback_data=f"onoff_shortener_{channel_id}")],
         [InlineKeyboardButton("🪩 Set Shortener 🪩", callback_data=f"add_shortener_{channel_id}"),
          InlineKeyboardButton("❌ Remove Shortener", callback_data=f"remove_shortener_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Settings", callback_data=f"channel_settings_{channel_id}")]
@@ -452,7 +452,7 @@ async def onoff_shortener(client, callback_query: CallbackQuery):
     )
 
     # **Show quick confirmation**
-    await callback_query.answer(f"✅ Shortener is now {shortener_status}!", show_alert=True)
+    await callback_query.answer(f"Shortener is now {shortener_status}!", show_alert=True)
 
 
 @StreamBot.on_callback_query(filters.regex(r"add_shortener_(\-?\d+)"))
@@ -460,31 +460,53 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])
 
-    await callback_query.message.edit_text(
+    # Ask for shortlink domain
+    msg = await callback_query.message.edit_text(
         "<b>🔗 Send me your shortlink site domain (without 'https://')</b>",
         parse_mode=enums.ParseMode.HTML
     )
 
     try:
-        url_response = await client.listen(user_id, timeout=60)
+        url_response = await client.listen(user_id, timeout=1000)
         if url_response.text.lower() == "/cancel":
-            return await url_response.reply_text("🚫 Process cancelled.")
+            await msg.delete()
+            return await url_response.reply_text(
+                "🚫 Process cancelled.",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+            )
+        
         shortlink_url = url_response.text.strip()
-
-        await url_response.reply_text("<b>🔑 Now send your API key</b>", parse_mode=enums.ParseMode.HTML)
-        api_response = await client.listen(user_id, timeout=60)
+        await url_response.delete()
+        
+        # Ask for API key
+        msg2 = await client.send_message(
+            user_id,
+            "<b>🔑 Now send your API key</b>",
+            parse_mode=enums.ParseMode.HTML
+        )
+        
+        api_response = await client.listen(user_id, timeout=1000)
         if api_response.text.lower() == "/cancel":
-            return await api_response.reply_text("🚫 Process cancelled.")
+            await msg2.delete()
+            return await api_response.reply_text(
+                "🚫 Process cancelled.",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+            )
+        
         api_key = api_response.text.strip()
-
-        # Validate API with a test conversion
+        await api_response.delete()
+        
         try:
             shortzy = Shortzy(api_key=api_key, base_site=shortlink_url)
             test_link = "https://t.me/NxBots_TG"
             await shortzy.convert(test_link)
         except Exception as e:
-            await api_response.reply_text(f"❌ Error in converting link:\n\n<code>{e}</code>\n\nTry again by selecting settings.", parse_mode=enums.ParseMode.HTML)
-            return
+            return await client.send_message(
+                user_id,
+                f"❌ Error in converting link:\n\n<code>{e}</code>\n\nTry again by selecting settings.",
+                parse_mode=enums.ParseMode.HTML,
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+            )
 
         # Save data to the database
         await db.channels.update_one(
@@ -492,11 +514,19 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
             {"$set": {"shortlink_url": shortlink_url, "shortlink_api": api_key}}
         )
 
-        await api_response.reply_text(f"✅ **Shortened URL settings saved!**\n\nShortlink: `{shortlink_url}`",
-                                      parse_mode=enums.ParseMode.HTML)
+        await client.send_message(
+            user_id,
+            f"<b>✅ Shortened URL settings saved!\n\nShortlink: {shortlink_url}</b>",
+            parse_mode=enums.ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+        )
 
     except asyncio.TimeoutError:
-        await callback_query.message.edit_text("⏳ **Time expired!** Please try again by selecting settings.")
+        await msg.delete()
+        await callback_query.message.edit_text(
+            "⏳ **Time expired!** Please try again by selecting settings.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+        )
 
 
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
