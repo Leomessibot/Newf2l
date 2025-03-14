@@ -351,9 +351,17 @@ async def delete_caption(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])
 
+    channel = await db.channels.find_one({'user_id': user_id, 'channel_id': channel_id})
+
+    if not channel or "custom_caption" not in channel:
+        # No caption exists, show a message instead
+        await callback_query.answer("⚠️ Add a caption first!", show_alert=True)
+        return
+
+    # Remove the caption from the database
     await db.channels.update_one(
         {'user_id': user_id, 'channel_id': channel_id},
-        {"$set": {"custom_caption": None}}
+        {"$unset": {"custom_caption": ""}}  # Remove the caption field
     )
 
     await callback_query.message.edit_text(
