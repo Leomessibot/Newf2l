@@ -184,6 +184,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
     settings_buttons = [
         [InlineKeyboardButton("✨️ Set Caption ✨️", callback_data=f"settings_caption_{channel_id}"),
          InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
+        [InlineKeyboardButton("🪩 Shortener Settings 🪩", callback_data=f"shortlink_settings_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Channels", callback_data="view_channels")]
     ]
 
@@ -369,6 +370,50 @@ async def delete_caption(client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"channel_settings_{channel_id}")]])
     )
 
+@StreamBot.on_callback_query(filters.regex(r"shortlink_settings_(\-?\d+)"))
+async def shortlink_settings(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])
+
+    await callback_query.message.edit_text(
+        "<b>🔗 Send me your shortlink site domain (without 'https://')</b>",
+        parse_mode=enums.ParseMode.HTML
+    )
+
+    try:
+        url_response = await client.listen(user_id, timeout=60)
+        if url_response.text.lower() == "/cancel":
+            return await url_response.reply_text("🚫 Process cancelled.")
+        shortlink_url = url_response.text.strip()
+
+        await url_response.reply_text("<b>🔑 Now send your API key</b>", parse_mode=enums.ParseMode.HTML)
+        api_response = await client.listen(user_id, timeout=60)
+        if api_response.text.lower() == "/cancel":
+            return await api_response.reply_text("🚫 Process cancelled.")
+        api_key = api_response.text.strip()
+
+        # Validate API with a test conversion
+        try:
+            shortzy = Shortzy(api_key=api_key, base_site=shortlink_url)
+            test_link = "https://t.me/NxBots_TG"
+            await shortzy.convert(test_link)
+        except Exception as e:
+            await api_response.reply_text(f"❌ **Error in converting link:**\n\n<code>{e}</code>\n\nTry again by selecting settings.", parse_mode=enums.ParseMode.HTML)
+            return
+
+        # Save data to the database
+        await db.channels.update_one(
+            {'user_id': user_id, 'channel_id': channel_id},
+            {"$set": {"shortlink_url": shortlink_url, "shortlink_api": api_key}}
+        )
+
+        await api_response.reply_text(f"✅ **Shortened URL settings saved!**\n\nShortlink: `{shortlink_url}`",
+                                      parse_mode=enums.ParseMode.HTML)
+
+    except asyncio.TimeoutError:
+        await callback_query.message.edit_text("⏳ **Time expired!** Please try again by selecting settings.")
+
+
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
@@ -386,10 +431,9 @@ async def remove_channel_callback(client, callback_query: CallbackQuery):
         await callback_query.message.edit_text("❌ Failed to remove channel.")
 
 @StreamBot.on_message(
-    filters.channel 
-    & ~filters.group 
+    filters.channel   
     & (filters.document | filters.video | filters.photo)  
-    & ~filters.forwarded, 
+    & ~filters.forwarded,  
     group=-1
 )
 async def channel_receive_handler(bot, broadcast):
@@ -413,13 +457,16 @@ async def channel_receive_handler(bot, broadcast):
         stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         download_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
 
-        # Apply Shortener if enabled
-        try:
-            if Var.SHORTLINK:
-                stream_link = get_shortlink(stream_link)
-                download_link = get_shortlink(download_link)
-        except Exception as e:
-            print(f"⚠️ URL Shortener Error: {e}")
+        # Fetch shortlink settings from DB (if set)
+        shortlink_domain = channel.get("shortlink_url")
+        shortlink_api = channel.get("shortlink_api")
+
+        if shortlink_domain and shortlink_api:
+            try:
+                stream_link = await get_shortlink(stream_link, shortlink_domain, shortlink_api)
+                download_link = await get_shortlink(download_link, shortlink_domain, shortlink_api)
+            except Exception as e:
+                print(f"⚠️ URL Shortener Error: {e}")
 
         # Get custom caption from DB, use default if not set
         custom_caption = channel.get("custom_caption", "**{previous_caption}**")
@@ -459,3 +506,10 @@ async def channel_receive_handler(bot, broadcast):
     except Exception as e:
         await bot.send_message(chat_id=Var.BIN_CHANNEL, text=f"❌ **#ERROR:** `{e}`", disable_web_page_preview=True)
         print(f"❌ Error: {e}")
+
+
+async def get_shortlink(original_url, shortlink_domain, shortlink_api):
+    """Converts a given URL using the shortlink API."""
+    shortzy = Shortzy(api_key=shortlink_api, base_site=shortlink_domain)
+    short_url = await shortzy.convert(original_url)
+    return short_url
