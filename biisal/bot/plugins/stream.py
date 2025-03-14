@@ -371,7 +371,71 @@ async def delete_caption(client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"channel_settings_{channel_id}")]])
     )
 
-@StreamBot.on_callback_query(filters.regex(r"shortlink_settings_(\-?\d+)"))
+@StreamBot.on_callback_query(filters.regex(r"set_shortener_(\-?\d+)"))
+async def set_shortener_callback(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])  # Extract channel ID
+
+    channel = await db.channels.find_one({'user_id': user_id, 'channel_id': channel_id})
+
+    if not channel:
+        return await callback_query.message.edit_text("❌ Channel not found!")
+
+    shortener_status = "✅️ Enabled" if channel.get("shortener_enabled", False) else "❌️ Disabled"
+
+    shortener_buttons = [
+        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"toggle_shortener_{channel_id}")],
+        [InlineKeyboardButton("🪩 Set Shortener 🪩", callback_data=f"add_shortener_{channel_id}"),
+         InlineKeyboardButton("❌ Remove Shortener", callback_data=f"remove_shortener_{channel_id}")],
+        [InlineKeyboardButton("🔙 Back to Settings", callback_data=f"channel_settings_{channel_id}")]
+    ]
+
+    await callback_query.message.edit_text(
+        f"<b>🔗 Shortener Settings for {channel['title']}</b>\n\n"
+        f"Shortener Status: {shortener_status}\n\n"
+        "Choose an option below:",
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(shortener_buttons)
+    )
+
+@StreamBot.on_callback_query(filters.regex(r"remove_shortener_(\-?\d+)"))
+async def remove_shortener(client, callback_query: CallbackQuery):
+    channel_id = int(callback_query.data.split("_")[-1])
+
+    await db.channels.update_one(
+        {'channel_id': channel_id},
+        {'$unset': {'shortlink_url': "", 'shortlink_api': "", 'shortener_enabled': ""}}
+    )
+
+    await callback_query.message.edit_text(
+        "✅ Shortener removed successfully!",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+    )
+
+@StreamBot.on_callback_query(filters.regex(r"toggle_shortener_(\-?\d+)"))
+async def toggle_shortener(client, callback_query: CallbackQuery):
+    channel_id = int(callback_query.data.split("_")[-1])
+    channel = await db.channels.find_one({'channel_id': channel_id})
+
+    if not channel or not channel.get("shortlink_url") or not channel.get("shortlink_api"):
+        return await callback_query.answer("❌ Add a shortener first!", show_alert=True)
+
+    new_status = not channel.get("shortener_enabled", False)
+
+    await db.channels.update_one(
+        {'channel_id': channel_id},
+        {'$set': {'shortener_enabled': new_status}}
+    )
+
+    status_text = "✅️ Enabled" if new_status else "❌️ Disabled"
+    
+    await callback_query.message.edit_text(
+        f"✅ Shortener is now {status_text}!",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
+    )
+
+
+@StreamBot.on_callback_query(filters.regex(r"add_shortener_(\-?\d+)"))
 async def shortlink_settings(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])
@@ -399,7 +463,7 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
             test_link = "https://t.me/NxBots_TG"
             await shortzy.convert(test_link)
         except Exception as e:
-            await api_response.reply_text(f"❌ **Error in converting link:**\n\n<code>{e}</code>\n\nTry again by selecting settings.", parse_mode=enums.ParseMode.HTML)
+            await api_response.reply_text(f"❌ Error in converting link:\n\n<code>{e}</code>\n\nTry again by selecting settings.", parse_mode=enums.ParseMode.HTML)
             return
 
         # Save data to the database
