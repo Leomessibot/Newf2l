@@ -182,7 +182,8 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
         return
 
     settings_buttons = [
-        [InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
+        [InlineKeyboardButton("✨️ Set Caption ✨️", callback_data=f"set_custom_caption_{channel_id}"),
+         InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Channels", callback_data="view_channels")]
     ]
 
@@ -207,6 +208,45 @@ async def remove_channel_callback(client, callback_query: CallbackQuery):
         )
     else:
         await callback_query.message.edit_text("❌ Failed to remove channel.")
+
+@StreamBot.on_callback_query(filters.regex("set_custom_caption_(\-?\d+)"))
+async def set_custom_caption(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])  # Extract channel ID
+
+    # Fetch channel from database
+    channel = await db.channels.find_one({'user_id': user_id, 'channel_id': channel_id})
+
+    if not channel:
+        await callback_query.message.edit_text("❌ Channel not found!")
+        return
+
+    msg = await callback_query.message.edit_text(
+        "📝 **Send me the new custom caption format.**\n\n"
+        "You can use these Format:\n"
+        "- `{file_name}` → File name\n"
+        "- `{previouscaption}` → Previous caption\n"
+        "- `{file_size}` → File size\n"
+        "- `{watch_link}` → Streaming link\n"
+        "- `{download_link}` → Download link\n\n"
+        "🚫 Type /cancel to stop."
+    )
+
+    try:
+        response = await client.listen(callback_query.from_user.id, timeout=60)
+
+        if response.text == "/cancel":
+            await msg.delete()
+            await response.reply_text("🚫 Process cancelled.")
+            return
+
+        # Update caption in database
+        await db.channels.update_one({'user_id': user_id, 'channel_id': channel_id}, {'$set': {'custom_caption': response.text}})
+
+        await response.reply_text("✅ **Custom caption updated successfully!**")
+
+    except asyncio.TimeoutError:
+        await msg.edit_text("⏳ **Time expired!** Click 'Set Custom Caption' again.")
 
 # --- Add New Channel (Limit: 5) ---
 @StreamBot.on_callback_query(filters.regex("add_channel"))
