@@ -459,6 +459,7 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     channel_id = int(callback_query.data.split("_")[-1])
 
+    # Ask for shortlink domain
     msg = await callback_query.message.edit_text(
         "<b>🔗 Send me your shortlink site domain (without 'https://')</b>",
         parse_mode=enums.ParseMode.HTML
@@ -476,6 +477,7 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
         shortlink_url = url_response.text.strip()
         await url_response.delete()
         
+        # Ask for API key
         msg2 = await client.send_message(
             user_id,
             "<b>🔑 Now send your API key</b>",
@@ -493,6 +495,7 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
         api_key = api_response.text.strip()
         await api_response.delete()
         
+        # Validate API with a test conversion
         try:
             shortzy = Shortzy(api_key=api_key, base_site=shortlink_url)
             test_link = "https://t.me/NxBots_TG"
@@ -511,9 +514,10 @@ async def shortlink_settings(client, callback_query: CallbackQuery):
             {"$set": {"shortlink_url": shortlink_url, "shortlink_api": api_key}}
         )
 
+        # Confirm with the user
         await client.send_message(
             user_id,
-            f"<b>✅ Shortened URL settings saved!\n\nShortlink: {shortlink_url}</b>",
+            f"<b>✅ Shortened URL settings saved!**\n\nShortlink: {shortlink_url}</b>",
             parse_mode=enums.ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
         )
