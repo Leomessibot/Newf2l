@@ -67,38 +67,6 @@ class Database:
             print(f"Failed to unban. Reason: {e}")
             return e
 
-    # --- Channel-related methods ---
-    
-    async def add_channel(self, channel_id, channel_title, user_id):
-        # Add the channel only if it doesn't already exist for the user
-        existing_channel = await self.channels.find_one({'channel_id': channel_id, 'user_id': user_id})
-        if not existing_channel:
-            channel_data = {
-                'channel_id': channel_id,
-                'title': channel_title,
-                'user_id': user_id,
-                'added_on': datetime.datetime.utcnow()
-            }
-            await self.channels.insert_one(channel_data)
-            return True
-        return False
-
-    async def get_user_channels(self, user_id):
-        channels = await self.channels.find({'user_id': user_id}).to_list(length=100)
-        return channels
-
-    async def get_channel(self, channel_id):
-        channel = await self.channels.find_one({'channel_id': channel_id})
-        return channel
-
-    async def remove_channel(self, channel_id):
-        result = await self.channels.delete_one({'channel_id': channel_id})
-        return result.deleted_count > 0
-
-    async def count_user_channels(self, user_id):
-        count = await self.channels.count_documents({'user_id': user_id})
-        return count
-
     # --- User settings methods ---
 
     async def get_user_settings(self, user_id):
