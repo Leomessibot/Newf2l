@@ -1,4 +1,3 @@
-# (c) TechifyBots
 # (c) @biisal
 # (c) adarsh-goel
 def human_size(bytes, units=[' bytes','KB','MB','GB','TB', 'PB', 'EB']):
