@@ -357,7 +357,7 @@ async def delete_caption(client, callback_query: CallbackQuery):
 
     if not channel or "custom_caption" not in channel:
         # No caption exists, show a message instead
-        await callback_query.answer("⚠️ Add a caption first!", show_alert=True)
+        await callback_query.answer("⚠️ Add a caption first 😏!", show_alert=True)
         return
 
     # Remove the caption from the database
@@ -401,6 +401,11 @@ async def set_shortener_callback(client, callback_query: CallbackQuery):
 @StreamBot.on_callback_query(filters.regex(r"remove_shortener_(\-?\d+)"))
 async def remove_shortener(client, callback_query: CallbackQuery):
     channel_id = int(callback_query.data.split("_")[-1])
+    channel = await db.channels.find_one({'channel_id': channel_id})
+
+    if not channel or not channel.get("shortlink_url") or not channel.get("shortlink_api"):
+        return await callback_query.answer("❌ Add a shortener first 😏!", show_alert=True)
+
 
     await db.channels.update_one(
         {'channel_id': channel_id},
@@ -427,12 +432,9 @@ async def toggle_shortener(client, callback_query: CallbackQuery):
         {'$set': {'shortener_enabled': new_status}}
     )
 
-    status_text = "✅️ Enabled" if new_status else "❌️ Disabled"
+    status_text = "🟢 Enabled" if new_status else "🔴 Disabled"
     
-    await callback_query.message.edit_text(
-        f"✅ Shortener is now {status_text}!",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
-    )
+    await callback_query.answer(f"✅ Shortener is now {status_text}!", show_alert=True)
 
 
 @StreamBot.on_callback_query(filters.regex(r"add_shortener_(\-?\d+)"))
