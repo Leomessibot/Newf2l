@@ -455,8 +455,8 @@ async def channel_receive_handler(bot, broadcast):
     try:
         # Forward message to BIN_CHANNEL for logging
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-        download_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}watch/{str(log_msg.id)}?hash={get_hash(log_msg)}"
+        download_link = f"{Var.URL}{str(log_msg.id)}?hash={get_hash(log_msg)}"
 
         # Fetch shortlink settings from DB (if set)
         shortlink_domain = channel.get("shortlink_url")
