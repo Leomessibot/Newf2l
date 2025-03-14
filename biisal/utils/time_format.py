@@ -1,7 +1,3 @@
-# (c) @biisal
-# (c) adarsh-goel
-# (c) TechifyBots
-
 def get_readable_time(seconds: int) -> str:
     count = 0
     readable_time = ""
