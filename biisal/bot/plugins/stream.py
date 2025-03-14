@@ -272,52 +272,76 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
     except asyncio.TimeoutError:
         await msg.edit_text("⏳ Time expired! Please click 'Add New Channel' again.")
 
-@StreamBot.on_message(filters.channel & ~filters.group & (filters.document | filters.video | filters.photo)  & ~filters.forwarded, group=-1)
+@StreamBot.on_message(
+    filters.channel 
+    & ~filters.group 
+    & (filters.document | filters.video | filters.photo)  
+    & ~filters.forwarded, 
+    group=-1
+)
 async def channel_receive_handler(bot, broadcast):
     channel = await db.channels.find_one({'channel_id': int(broadcast.chat.id)})
 
     if not channel:
         return  
-        
+
     if int(broadcast.chat.id) in Var.BAN_CHNL:
-        print("chat trying to get straming link is found in BAN_CHNL,so im not going to give stram link")
+        print("🚫 Banned channel detected. Ignoring request.")
         return
+
     ban_chk = await db.is_banned(int(broadcast.chat.id))
-    if (int(broadcast.chat.id) in Var.BANNED_CHANNELS) or (ban_chk == True):
+    if (int(broadcast.chat.id) in Var.BANNED_CHANNELS) or (ban_chk is True):
         await bot.leave_chat(broadcast.chat.id)
         return
-    try:  # This is the outer try block
+
+    try:
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
         stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-        online_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-        try:  # This is the inner try block
-            if Var.SHORTLINK:
-                stream = get_shortlink(stream_link)
-                download = get_shortlink(online_link)
-            else:
-                stream = stream_link
-                download = online_link
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        download_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
 
-        await log_msg.reply_text(
-            text=f"**Channel Name:** `{broadcast.chat.title}`\n**CHANNEL ID:** `{broadcast.chat.id}`\n**Rᴇǫᴜᴇsᴛ ᴜʀʟ:** {stream_link}",
-            quote=True
+        # Apply Shortener if enabled
+        try:
+            if Var.SHORTLINK:
+                stream_link = get_shortlink(stream_link)
+                download_link = get_shortlink(download_link)
+        except Exception as e:
+            print(f"⚠️ URL Shortener Error: {e}")
+
+        # Get custom caption from DB, use default if not set
+        custom_caption = channel.get("custom_caption", "**{file_name}**\n🔗 {watch_link}\n📥 {download_link}")
+
+        # Extract file details
+        file_name = broadcast.document.file_name if broadcast.document else "Unknown File"
+        file_size = f"{broadcast.document.file_size / 1024 / 1024:.2f} MB" if broadcast.document else "Unknown Size"
+        previous_caption = broadcast.caption if broadcast.caption else "No caption"
+
+        # Format caption with actual values
+        formatted_caption = custom_caption.format(
+            file_name=file_name,
+            previouscaption=previous_caption,
+            file_size=file_size,
+            watch_link=stream_link,
+            download_link=download_link
         )
+
+        await log_msg.reply_text(text=formatted_caption, quote=True)
+
         await bot.edit_message_reply_markup(
             chat_id=broadcast.chat.id,
             message_id=broadcast.id,
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("ꜱᴛʀᴇᴀᴍ 🔺", url=stream),
-                 InlineKeyboardButton("ᴅᴏᴡɴʟᴏᴀᴅ 🔻", url=download)]
+                [InlineKeyboardButton("🎬 Watch", url=stream_link),
+                 InlineKeyboardButton("⬇️ Download", url=download_link)]
             ])
         )
+
     except FloodWait as w:
         print(f"Sleeping for {str(w.x)}s")
         await asyncio.sleep(w.x)
         await bot.send_message(chat_id=Var.BIN_CHANNEL,
-                            text=f"GOT FLOODWAIT OF {str(w.x)}s FROM {broadcast.chat.title}\n\n**CHANNEL ID:** `{str(broadcast.chat.id)}`",
-                            disable_web_page_preview=True)
+                               text=f"⚠️ FloodWait: {str(w.x)}s from {broadcast.chat.title}\n**CHANNEL ID:** `{str(broadcast.chat.id)}`",
+                               disable_web_page_preview=True)
+
     except Exception as e:
-        await bot.send_message(chat_id=Var.BIN_CHANNEL, text=f"**#ERROR_TRACKEBACK:** `{e}`", disable_web_page_preview=True)
-        print(f"Cᴀɴ'ᴛ Eᴅɪᴛ Bʀᴏᴀᴅᴄᴀsᴛ Mᴇssᴀɢᴇ!\nEʀʀᴏʀ:  **Give me edit permission in updates and bin Channel!{e}**")
+        await bot.send_message(chat_id=Var.BIN_CHANNEL, text=f"❌ **#ERROR:** `{e}`", disable_web_page_preview=True)
+        print(f"❌ Error: {e}")
