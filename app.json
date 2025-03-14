@@ -1,5 +1,5 @@
 {
-    "name": "TechifyBots",
+    "name": "NxBotsTG",
     "description": "A Pyrogram Telegram bot to Stream Telegram files to web.",
     "keywords": [
         "telegram",
@@ -13,7 +13,7 @@
         "media",
         "bot"
     ],
-    "repository": "https://github.com/TechifyBots/file-stream-bot",
+    "repository": "https://github.com/LEOTG7",
     "success_url": "/",
     "logo": "https://i.postimg.cc/jjgVnXrV/20231106-110427.png",
     "website": "https://TechifyBots.blogspot.com/",
