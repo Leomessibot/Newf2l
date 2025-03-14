@@ -1,5 +1,3 @@
-# (c) TechifyBots
-# (c) @biisal
 # (c) adarsh-goel
 import asyncio
 import traceback
