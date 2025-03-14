@@ -1,8 +1,3 @@
-# (c) TechifyBots
-# (c) @biisal
-# (c) adarsh-goel
-
-
 def humanbytes(size):
     # https://stackoverflow.com/a/49361727/4723940
     # 2**10 = 1024
