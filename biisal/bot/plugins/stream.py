@@ -18,9 +18,6 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from biisal.utils.file_properties import get_name, get_hash, get_media_file_size
 db = Database(Var.DATABASE_URL, Var.name)
 
-# Ensure 'user_sessions' collection exists
-db_user_sessions = db["user_sessions"]  # Define collection properly
-
 
 def generate_random_alphanumeric(): 
     """Generate a random 8-letter alphanumeric string.""" 
