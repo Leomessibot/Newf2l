@@ -137,7 +137,6 @@ async def private_receive_handler(c: Client, m: Message):
         await asyncio.sleep(e.x)
         await c.send_message(chat_id=Var.BIN_CHANNEL, text=f"Gᴏᴛ FʟᴏᴏᴅWᴀɪᴛ ᴏғ {str(e.x)}s from [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n\n**𝚄𝚜𝚎𝚛 𝙸𝙳 :** `{str(m.from_user.id)}`", disable_web_page_preview=True)
 
-# --- View Channels ---
 @StreamBot.on_callback_query(filters.regex("view_channels"))
 async def view_channels_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
@@ -185,7 +184,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
     settings_buttons = [
         [InlineKeyboardButton("✨️ Set Caption ✨️", callback_data=f"settings_caption_{channel_id}"),
          InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
-        [InlineKeyboardButton("🪩 Shortener Settings 🪩", callback_data=f"shortlink_settings_{channel_id}")],
+        [InlineKeyboardButton("🪩 Shortener Settings 🪩", callback_data=f"set_shortener_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Channels", callback_data="view_channels")]
     ]
 
@@ -194,7 +193,6 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup(settings_buttons)
     )
 
-# --- Remove Specific Channel ---
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
@@ -259,7 +257,7 @@ async def set_custom_caption(client, callback_query: CallbackQuery):
     except asyncio.TimeoutError:
         await msg.edit_text("⏳ **Time expired!** Click 'Set Custom Caption' again.")
 
-# --- Add New Channel (Limit: 5) ---
+
 @StreamBot.on_callback_query(filters.regex("add_channel"))
 async def add_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id  # Get user ID
