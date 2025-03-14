@@ -415,8 +415,8 @@ async def remove_shortener(client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"set_shortener_{channel_id}")]])
     )
 
-@StreamBot.on_callback_query(filters.regex(r"toggle_shortener_(\-?\d+)"))
-async def toggle_shortener(client, callback_query: CallbackQuery):
+@StreamBot.on_callback_query(filters.regex(r"onoff_shortener_(\-?\d+)"))
+async def onoff_shortener(client, callback_query: CallbackQuery):
     channel_id = int(callback_query.data.split("_")[-1])
     channel = await db.channels.find_one({'channel_id': channel_id})
 
@@ -430,9 +430,29 @@ async def toggle_shortener(client, callback_query: CallbackQuery):
         {'$set': {'shortener_enabled': new_status}}
     )
 
-    status_text = "🟢 Enabled" if new_status else "🔴 Disabled"
+    shortener_status = "✅️ Enabled" if new_status else "❌️ Disabled"
+
+    caption = (
+        f"<b>🔗 Shortener Settings for {channel['title']}</b>\n\n"
+        f"Shortener Status: {shortener_status}\n\n"
+        "Choose an option below:"
+    )
+
     
-    await callback_query.answer(f"✅ Shortener is now {status_text}!", show_alert=True)
+    buttons = [
+        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"toggle_shortener_{channel_id}")],
+        [InlineKeyboardButton("🪩 Set Shortener 🪩", callback_data=f"add_shortener_{channel_id}"),
+         InlineKeyboardButton("❌ Remove Shortener", callback_data=f"remove_shortener_{channel_id}")],
+        [InlineKeyboardButton("🔙 Back to Settings", callback_data=f"channel_settings_{channel_id}")]
+    ]
+    await callback_query.message.edit_text(
+        caption,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+    # **Show quick confirmation**
+    await callback_query.answer(f"✅ Shortener is now {shortener_status}!", show_alert=True)
 
 
 @StreamBot.on_callback_query(filters.regex(r"add_shortener_(\-?\d+)"))
