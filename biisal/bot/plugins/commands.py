@@ -1,5 +1,3 @@
-# (c) TechifyBots @biisal @adarsh
-
 import random
 from biisal.bot import StreamBot
 from biisal.vars import Var
@@ -16,7 +14,7 @@ db = Database(Var.DATABASE_URL, Var.name)
 from pyrogram.types import ReplyKeyboardMarkup
 
 
-TechifyBots = """{},
+NxBots = """{},
 
 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺 𝖿𝗂𝗅𝖾 𝗈𝗋 𝖺𝖽𝖽 𝗆𝖾 𝖺𝗌 𝖺𝗇 𝖺𝖽𝗆𝗂𝗇 𝗍𝗈 𝖺𝗇𝗒 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗍𝗈 𝗂𝗇𝗌𝗍𝖺𝗇𝗍𝗅𝗒 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾 𝗉𝖾𝗋𝗆𝖺𝗇𝖾𝗇𝗍 𝗅𝗂𝗇𝗄𝗌.
 
@@ -24,7 +22,7 @@ TechifyBots = """{},
 
 <b>𝘕𝘰𝘵𝘦 :</b>𝘎𝘦𝘯𝘦𝘳𝘢𝘵𝘪𝘯𝘨 𝘓𝘪𝘯𝘬 𝘖𝘧 𝘈𝘥𝘶𝘭𝘵 𝘊𝘰𝘯𝘵𝘦𝘯𝘵 𝘐𝘴 𝘚𝘵𝘳𝘪𝘤𝘵𝘭𝘺 𝘗𝘳𝘰𝘩𝘪𝘣𝘪𝘵𝘦𝘥. 𝘐𝘧 𝘠𝘰𝘶 𝘞𝘪𝘭𝘭 𝘋𝘰 𝘠𝘰𝘶 𝘞𝘪𝘭𝘭 𝘎𝘦𝘵 𝘗𝘦𝘳𝘮𝘢𝘯𝘦𝘯𝘵 𝘉𝘢𝘯.
 
-<blockquote><a href='https://telegram.me/LinkStreamRobot?startchannel&admin=post_messages+edit_messages+delete_messages'>➜ 𝖠𝖽𝖽 𝖳𝗈 𝖢𝗁𝖺𝗇𝗇𝖾𝗅</a></blockquote>"""
+<blockquote><a href='https://telegram.me/TonyStark_v5_bot?startchannel&admin=post_messages+edit_messages+delete_messages'>➜ 𝖠𝖽𝖽 𝖳𝗈 𝖢𝗁𝖺𝗇𝗇𝖾𝗅</a></blockquote>"""
 
 @StreamBot.on_message(filters.command("start") & filters.private )
 async def start(b, m):
@@ -63,14 +61,14 @@ async def start(b, m):
             print(f"Error in start command: {e}")  # Print the error
             await b.send_message(
                 chat_id=m.chat.id,
-                text="<b>ꜱᴏᴍᴇᴛʜɪɴɢ  ᴡᴇɴᴛ  ᴡʀᴏɴɢ  <a href='https://telegram.me/TechifySupport'>ᴄʟɪᴄᴋ  ʜᴇʀᴇ  ꜰᴏʀ  ꜱᴜᴘᴘᴏʀᴛ</a></b>",
+                text="<b>ꜱᴏᴍᴇᴛʜɪɴɢ  ᴡᴇɴᴛ  ᴡʀᴏɴɢ  <a href='https://t.me/NxBots_TG'>ᴄʟɪᴄᴋ  ʜᴇʀᴇ  ꜰᴏʀ  ꜱᴜᴘᴘᴏʀᴛ</a></b>",
                 disable_web_page_preview=True
             )
             return
     await StreamBot.send_photo(
     chat_id=m.chat.id,
     photo=random.choice(Var.PICS),
-    caption= TechifyBots.format(m.from_user.mention(style="md")),
+    caption= NxBots.format(m.from_user.mention(style="md")),
     reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -120,7 +118,7 @@ async def help_cd(b, m):
         except Exception:
             await b.send_message(
                 chat_id=m.chat.id,
-                text="ꜱᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ ᴄᴏɴᴛᴀᴄᴛ [ᴏᴡɴᴇʀ](https://telegram.me/callOwnerBot).",
+                text="ꜱᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ ᴄᴏɴᴛᴀᴄᴛ [ᴏᴡɴᴇʀ](https://t.me/NxBots_TG).",
                 disable_web_page_preview=True)
             return
     await StreamBot.send_photo(
@@ -133,7 +131,7 @@ Just Send Me Files And I Will Give You Direct Download & Streaming Link.
 Also You Can Use Me In Your Channel..Just Add Me And Make Me Admin And See My Power 🔥</b>""",
     reply_markup=InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("👨‍💻  ʀᴇᴘᴏ", url="https://github.com/TechifyBots/File-Stream-Bot"),
+            [InlineKeyboardButton("👨‍💻  ʀᴇᴘᴏ", url="https://t.me/NxBots_TG"),
             InlineKeyboardButton("💥  ᴅᴏɴᴀᴛᴇ", callback_data="donate")],
             [InlineKeyboardButton("✗ ᴄʟᴏsᴇ ✗", callback_data="close")]
         ]
@@ -198,7 +196,7 @@ async def cb_handler(client, query):
 
     if data == "start":
         await query.message.edit_caption(
-        caption= TechifyBots.format(query.from_user.mention(style="md")),
+        caption= NxBots.format(query.from_user.mention(style="md")),
         reply_markup=InlineKeyboardMarkup(
                     [
                         [
@@ -214,7 +212,7 @@ async def cb_handler(client, query):
 
     elif data == "about":
         await query.message.edit_caption(
-            caption=f"<b>ᴍʏ ɴᴀᴍᴇ : <a href='https://telegram.me/linkstreamrobot'>ʟɪɴᴋ sᴛʀᴇᴀᴍ ʀᴏʙᴏᴛ</a>\nʜᴏsᴛᴇᴅ ᴏɴ : ᴋᴏʏᴇʙ\nᴅᴀᴛᴀʙᴀsᴇ : ᴍᴏɴɢᴏ ᴅʙ\nʟᴀɴɢᴜᴀɢᴇ : ᴘʏᴛʜᴏɴ 𝟹\nᴍʏ ᴄʀᴇᴀᴛᴏʀ : <a href='https://telegram.me/callownerbot'>ʀᴀʜᴜʟ</a></b>",
+            caption=f"<b>ᴍʏ ɴᴀᴍᴇ : <a href='https://t.me/NxBots_TG'>ʟɪɴᴋ sᴛʀᴇᴀᴍ ʀᴏʙᴏᴛ</a>\nʜᴏsᴛᴇᴅ ᴏɴ : ᴋᴏʏᴇʙ\nᴅᴀᴛᴀʙᴀsᴇ : ᴍᴏɴɢᴏ ᴅʙ\nʟᴀɴɢᴜᴀɢᴇ : ᴘʏᴛʜᴏɴ 𝟹\nᴍʏ ᴄʀᴇᴀᴛᴏʀ : <a href='https://telegram.me/callownerbot'>ʀᴀʜᴜʟ</a></b>",
             reply_markup=InlineKeyboardMarkup(
                 [[ 
                      InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="start"),
@@ -224,7 +222,7 @@ async def cb_handler(client, query):
         )
     elif data == "donate":
         await query.message.edit_caption(
-            caption=f"<blockquote>❤️‍🔥 𝐓𝐡𝐚𝐧𝐤𝐬 𝐟𝐨𝐫 𝐬𝐡𝐨𝐰𝐢𝐧𝐠 𝐢𝐧𝐭𝐞𝐫𝐞𝐬𝐭 𝐢𝐧 𝐃𝐨𝐧𝐚𝐭𝐢𝐨𝐧</blockquote>\n\n<b><i>💞  ɪꜰ ʏᴏᴜ ʟɪᴋᴇ ᴏᴜʀ ʙᴏᴛ ꜰᴇᴇʟ ꜰʀᴇᴇ ᴛᴏ ᴅᴏɴᴀᴛᴇ ᴀɴʏ ᴀᴍᴏᴜɴᴛ ₹𝟷𝟶, ₹𝟸𝟶, ₹𝟻𝟶, ₹𝟷𝟶𝟶, ᴇᴛᴄ.</i></b>\n\n❣️ 𝐷𝑜𝑛𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑟𝑒 𝑟𝑒𝑎𝑙𝑙𝑦 𝑎𝑝𝑝𝑟𝑒𝑐𝑖𝑎𝑡𝑒𝑑 𝑖𝑡 ℎ𝑒𝑙𝑝𝑠 𝑖𝑛 𝑏𝑜𝑡 𝑑𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡\n\n💖 𝐔𝐏𝐈 𝐈𝐃 : <code>TechifyBots@UPI</code>",
+            caption=f"<blockquote>❤️‍🔥 𝐓𝐡𝐚𝐧𝐤𝐬 𝐟𝐨𝐫 𝐬𝐡𝐨𝐰𝐢𝐧𝐠 𝐢𝐧𝐭𝐞𝐫𝐞𝐬𝐭 𝐢𝐧 𝐃𝐨𝐧𝐚𝐭𝐢𝐨𝐧</blockquote>\n\n<b><i>💞  ɪꜰ ʏᴏᴜ ʟɪᴋᴇ ᴏᴜʀ ʙᴏᴛ ꜰᴇᴇʟ ꜰʀᴇᴇ ᴛᴏ ᴅᴏɴᴀᴛᴇ ᴀɴʏ ᴀᴍᴏᴜɴᴛ ₹𝟷𝟶, ₹𝟸𝟶, ₹𝟻𝟶, ₹𝟷𝟶𝟶, ᴇᴛᴄ.</i></b>\n\n❣️ 𝐷𝑜𝑛𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑟𝑒 𝑟𝑒𝑎𝑙𝑙𝑦 𝑎𝑝𝑝𝑟𝑒𝑐𝑖𝑎𝑡𝑒𝑑 𝑖𝑡 ℎ𝑒𝑙𝑝𝑠 𝑖𝑛 𝑏𝑜𝑡 𝑑𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡\n\n💖 𝐔𝐏𝐈 𝐈𝐃 : <code>@UPI</code>",
             reply_markup=InlineKeyboardMarkup(
                 [[ 
                      InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="help"),
@@ -238,7 +236,7 @@ async def cb_handler(client, query):
         caption=f"<b>You Don't Need Many Commands To Use This Bot 😅.\n\nJust Send Me Files And I Will Give You Direct Download & Streaming Link.\n\nAlso You Can Use Me In Your Channel..Just Add Me And Make Me Admin And See My Power 🔥</b>",
             reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("👨‍💻  ʀᴇᴘᴏ", url="https://github.com/TechifyBots/File-Stream-Bot"),
+                [InlineKeyboardButton("👨‍💻  ʀᴇᴘᴏ", url="https://t.me/NxBots_TG"),
                  InlineKeyboardButton("💥  ᴅᴏɴᴀᴛᴇ", callback_data="donate")],
                 [InlineKeyboardButton("ʜᴏᴍᴇ", callback_data="start")]
             ]
