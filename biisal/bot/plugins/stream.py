@@ -4,6 +4,7 @@ import requests
 import string
 import random
 from pyrogram import enums 
+from shortzy import Shortzy
 from asyncio import TimeoutError
 from biisal.bot import StreamBot
 from biisal.utils.database import Database
