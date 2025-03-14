@@ -1,4 +1,3 @@
-# (c) TechifyBots (c) biisal (c) adarsh-goel
 from pyrogram import Client
 from ..vars import Var
 from os import getcwd
