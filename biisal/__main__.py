@@ -1,6 +1,3 @@
-# (c) TechifyBots
-# (c) biisal
-# (c) adars h-goel
 import os
 import sys
 import glob
