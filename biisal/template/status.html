@@ -79,8 +79,8 @@
             <a href="#"><h3 style="z-index: 100">NxBotsTG</h3></a>
         </div>
         <div class="nryt">
-            <a href="#home">HOME</a>
-            <a href="#about">ABOUT</a>
+            <a href="javascript:void(0);" onclick="showHome()">HOME</a>
+            <a href="javascript:void(0);" onclick="showAbout()">ABOUT</a>
         </div>
     </nav>
 
@@ -94,15 +94,15 @@
         </div>
     </div>
 
-    <div class="about-section" id="about">
-        <h1>WELCOME TO OUR <span style="color: #ff4757">MadxBotz Streamer</span></h1>
+    <div class="about-section" id="about" style="display: none;">
+        <h1>WELCOME TO OUR <span style="color: #ff4757">NxBotsTG streamer</span></h1>
         <p>
             This is a Telegram Bot to Stream <span style="color: #ff4757">Movies</span> and 
             <span style="color: #ff4757">Series</span> directly on Telegram. 
             You can also <span style="color: #ff4757">download</span> them if you want. 
             <br /><br />
             This bot is developed by 
-            <a href="https://telegram.me/ruban9124" style="font-weight: bold; color: #ff4757;">RUBAN</a>. 
+            <a href="https://telegram.me/LeoTGx_7" style="font-weight: bold; color: #ff4757;">RUBAN</a>. 
             <br /><br />
             If you like this bot, then don't forget to share it with your friends and family.
         </p>
@@ -112,5 +112,16 @@
         <p>&copy; 2025 NxBotsTG</p>
     </footer>
 
+    <script>
+        function showHome() {
+            document.getElementById('home').style.display = 'block';
+            document.getElementById('about').style.display = 'none';
+        }
+
+        function showAbout() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('about').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
