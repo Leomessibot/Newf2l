@@ -346,8 +346,21 @@ async def set_custom_caption(client, callback_query: CallbackQuery):
         parse_mode=enums.ParseMode.HTML
     )
 
+@StreamBot.on_callback_query(filters.regex(r"delete_caption_(\-?\d+)"))
+async def delete_caption(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])
 
-# --- Remove Specific Channel ---
+    await db.channels.update_one(
+        {'user_id': user_id, 'channel_id': channel_id},
+        {"$set": {"custom_caption": None}}
+    )
+
+    await callback_query.message.edit_text(
+        "✅ Caption removed successfully!",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data=f"channel_settings_{channel_id}")]])
+    )
+
 @StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
 async def remove_channel_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
