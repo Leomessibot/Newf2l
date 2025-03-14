@@ -382,7 +382,7 @@ async def set_shortener_callback(client, callback_query: CallbackQuery):
     shortener_status = "✅️ Enabled" if channel.get("shortener_enabled", False) else "❌️ Disabled"
 
     shortener_buttons = [
-        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"toggle_shortener_{channel_id}")],
+        [InlineKeyboardButton(f"🔗 Shortener :{shortener_status}", callback_data=f"onoff_shortener_{channel_id}")],
         [InlineKeyboardButton("🪩 Set Shortener 🪩", callback_data=f"add_shortener_{channel_id}"),
          InlineKeyboardButton("❌ Remove Shortener", callback_data=f"remove_shortener_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Settings", callback_data=f"channel_settings_{channel_id}")]
