@@ -237,13 +237,22 @@ async def set_custom_caption(client, callback_query: CallbackQuery):
 
         if response.text == "/cancel":
             await msg.delete()
-            await response.reply_text("🚫 Process cancelled.")
+            await response.reply_text(
+                "🚫 Process cancelled.", 
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+            )
             return
 
         # Update caption in database
         await db.channels.update_one({'user_id': user_id, 'channel_id': channel_id}, {'$set': {'custom_caption': response.text}})
+        
+        await msg.delete()
+        await response.delete()
 
-        await response.reply_text("✅ **Custom caption updated successfully!**")
+        await response.reply_text(
+            f"<b>✅ Custom caption updated successfully!</b>",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+        )       
 
     except asyncio.TimeoutError:
         await msg.edit_text("⏳ **Time expired!** Click 'Set Custom Caption' again.")
