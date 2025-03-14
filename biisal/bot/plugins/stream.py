@@ -182,7 +182,7 @@ async def channel_settings_callback(client, callback_query: CallbackQuery):
         return
 
     settings_buttons = [
-        [InlineKeyboardButton("✨️ Set Caption ✨️", callback_data=f"set_custom_caption_{channel_id}"),
+        [InlineKeyboardButton("✨️ Set Caption ✨️", callback_data=f"settings_caption_{channel_id}"),
          InlineKeyboardButton("❌ Remove Channel", callback_data=f"remove_channel_{channel_id}")],
         [InlineKeyboardButton("🔙 Back to Channels", callback_data="view_channels")]
     ]
@@ -321,6 +321,49 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
     except asyncio.TimeoutError:
         await msg.edit_text("⏳ Time expired! Please click 'Add New Channel' again.")
 
+@StreamBot.on_callback_query(filters.regex(r"settings_caption_(\-?\d+)"))
+async def set_custom_caption(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])
+
+    channel = await db.channels.find_one({'user_id': user_id, 'channel_id': channel_id})
+
+    if not channel:
+        await callback_query.message.edit_text("❌ Channel not found!")
+        return
+
+    current_caption = channel.get("custom_caption", "No caption set yet.")
+
+    buttons = [
+        [InlineKeyboardButton("✨️ Add Caption ✨️", callback_data=f"set_custom_caption_{channel_id}")],
+        [InlineKeyboardButton("🚫 Remove Caption 🚫", callback_data=f"delete_caption_{channel_id}")],
+        [InlineKeyboardButton("🔙 Back", callback_data=f"channel_settings_{channel_id}")]
+    ]
+
+    await callback_query.message.edit_text(
+        f"<b>📂 Current Caption:</b>\n\n<code>{current_caption}</code>\n\nChoose an option:",
+        reply_markup=InlineKeyboardMarkup(buttons),
+        parse_mode=enums.ParseMode.HTML
+    )
+
+
+# --- Remove Specific Channel ---
+@StreamBot.on_callback_query(filters.regex(r"remove_channel_(\-?\d+)"))
+async def remove_channel_callback(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    channel_id = int(callback_query.data.split("_")[-1])  
+
+    
+    result = await db.channels.delete_one({'user_id': user_id, 'channel_id': channel_id})
+
+    if result.deleted_count > 0:
+        await callback_query.message.edit_text(
+            "✅ Channel removed successfully!",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="view_channels")]])
+        )
+    else:
+        await callback_query.message.edit_text("❌ Failed to remove channel.")
+
 @StreamBot.on_message(
     filters.channel 
     & ~filters.group 
@@ -358,7 +401,7 @@ async def channel_receive_handler(bot, broadcast):
             print(f"⚠️ URL Shortener Error: {e}")
 
         # Get custom caption from DB, use default if not set
-        custom_caption = channel.get("custom_caption", "**{file_name}**\n🔗 {watch_link}\n📥 {download_link}")
+        custom_caption = channel.get("custom_caption", "**{previous_caption}**")
 
         # Extract file details
         file_name = broadcast.document.file_name if broadcast.document else "Unknown File"
