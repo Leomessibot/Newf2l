@@ -276,8 +276,10 @@ async def add_channel_callback(client, callback_query: CallbackQuery):
 
 @StreamBot.on_message(filters.channel & ~filters.group & (filters.document | filters.video | filters.photo)  & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot, broadcast):
-    if not await db.get_channel(broadcast.chat.id):
-        return
+    channel = await db.channels.find_one({'channel_id': int(broadcast.chat.id)})
+
+    if not channel:
+        return  
         
     if int(broadcast.chat.id) in Var.BAN_CHNL:
         print("chat trying to get straming link is found in BAN_CHNL,so im not going to give stram link")
