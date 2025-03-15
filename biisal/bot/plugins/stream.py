@@ -576,6 +576,7 @@ async def channel_receive_handler(bot, broadcast):
         # Fetch shortlink settings from DB (if set)
         shortlink_domain = channel.get("shortlink_url")
         shortlink_api = channel.get("shortlink_api")
+        shortener_enabled = channel.get("shortener_enabled", False)
 
         if shortener_enabled and shortlink_domain and shortlink_api:
             try:
