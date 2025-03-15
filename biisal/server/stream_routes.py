@@ -6,6 +6,7 @@ import logging
 import secrets
 import mimetypes
 from aiohttp import web
+import jinja2
 from aiohttp.http_exceptions import BadStatusLine
 from biisal.bot import multi_clients, work_loads, StreamBot
 from biisal.server.exceptions import FIleNotFound, InvalidHash
@@ -21,19 +22,40 @@ routes = web.RouteTableDef()
 
 from jinja2 import Environment, FileSystemLoader
 
-# Load templates from the correct directory
-env = Environment(loader=FileSystemLoader("biisal/template"))
-
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    template = env.get_template("status.html")
-    html_content = template.render(
-        uptime=get_readable_time(time.time() - StartTime),
-        connected_bots=len(multi_clients),
-        loads=" | ".join([f"Bot {c + 1} : {l}" for c, (_, l) in enumerate(sorted(work_loads.items(), key=lambda x: x[1], reverse=True))])
+    html_content = await render_template(
+        "index.html",
+        {
+            "server_status": "running",
+            "uptime": get_readable_time(time.time() - StartTime),
+            "telegram_bot": "@" + StreamBot.username,
+            "connected_bots": len(multi_clients),
+            "loads": dict(
+                ("Bot " + str(c + 1), l)
+                for c, (_, l) in enumerate(
+                    sorted(work_loads.items(), key=lambda x: x[1], reverse=True)
+                )
+            ),
+            "version": __version__,
+            "headlink": "biisal.live",
+        },
     )
-    return web.Response(text=html_content, content_type="text/html")
 
+    return web.Response(body=html_content, content_type="text/html")
+
+
+async def render_template(template_name, context):
+    template_dir = "Phoniex/template"
+
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+
+    template = env.get_template(template_name)
+
+    html_content = template.render(context)
+
+    return html_content
+    
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
     try:
