@@ -577,7 +577,7 @@ async def channel_receive_handler(bot, broadcast):
         shortlink_domain = channel.get("shortlink_url")
         shortlink_api = channel.get("shortlink_api")
 
-        if shortlink_domain and shortlink_api:
+        if shortener_enabled and shortlink_domain and shortlink_api:
             try:
                 stream_link = await get_shortlink(stream_link, shortlink_domain, shortlink_api)
                 download_link = await get_shortlink(download_link, shortlink_domain, shortlink_api)
