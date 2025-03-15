@@ -46,7 +46,7 @@ async def root_route_handler(_):
 
 
 async def render_template(template_name, context):
-    template_dir = "Phoniex/template"
+    template_dir = "biisal/template"
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
 
